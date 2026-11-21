@@ -34,33 +34,29 @@ def updata(*args):
             # 特別扣除額
             special_deduction_math = min(218000,int(revenus.get()))
             special_deduction.set(f'{special_deduction_math:,}')
-        
-            try:
-                check()
+            
+            # 必要費用
+            check()
+            deduction_list = 0
+            for var in check_deduction:
+                try:
+                    deduction_math = min(int(int(revenus.get())*0.03),int(var.get()))
+                except ValueError:
+                    deduction_math = 0
+                deduction_list += deduction_math    
+            msg_deduction_list.set(f'薪資必要費用扣抵額：{deduction_list:,}')
 
-                # 必要費用
-                deduction_list = 0
-                for var in check_deduction:
-                    try:
-                        deduction_math = min(int(int(revenus.get())*0.03),int(var.get()))
-                    except ValueError:
-                        deduction_math = 0
-                    deduction_list += deduction_math    
-                msg_deduction_list.set(f'薪資必要費用扣抵額：{deduction_list:,}')
+            # 扣除額
+            if special_deduction_math >= deduction_list:
+                deduction.set(special_deduction_math)
+                deduction_msg.set('採用薪資所得特別扣除額較有利')
+            else:
+                deduction.set(deduction_list)
+                deduction_msg.set('採用薪資必要費用(核實減除)較有利')
 
-                # 扣除額
-                if special_deduction_math >= deduction_list:
-                    deduction.set(special_deduction_math)
-                    deduction_msg.set('採用薪資所得特別扣除額較有利')
-                else:
-                    deduction.set(deduction_list)
-                    deduction_msg.set('採用薪資必要費用(核實減除)較有利')
+            # 薪資所得
+            income.set(f'{int(revenus.get())-int(deduction.get()):,}')
 
-                # 薪資所得
-                income.set(f'{int(revenus.get())-int(deduction.get()):,}')
-
-            except ValueError:
-                pass
         else:
             raise ValueError
         
